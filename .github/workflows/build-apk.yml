@@ -1,0 +1,57 @@
+name: Build APK
+
+# Builds a release APK in the cloud (no local Flutter install needed).
+# Runs on every push to main/master, and can be triggered manually from the
+# Actions tab (Run workflow). Download the APK from the run's "Artifacts".
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Flutter version
+        run: flutter --version
+
+      # We commit only lib/ + pubspec.yaml; generate the android/ project here.
+      - name: Generate Android project
+        run: flutter create --platforms=android --project-name tri_model_detector .
+
+      # Release builds need INTERNET declared in the main manifest (to call the API).
+      - name: Add INTERNET permission
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          grep -q "android.permission.INTERNET" "$MANIFEST" || \
+            sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application#' "$MANIFEST"
+          echo "----- AndroidManifest.xml -----"
+          cat "$MANIFEST"
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tri-model-detector-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
