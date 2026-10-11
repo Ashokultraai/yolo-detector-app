@@ -164,7 +164,7 @@ class _DetectionScreenState extends State<DetectionScreen> {
           children: [
             Image.memory(frame.bytes, fit: BoxFit.fill),
             CustomPaint(
-              painter: BoxPainter(r.detections, r.imageWidth, r.imageHeight),
+              painter: DetectionPainter(r.detections, r.imageWidth, r.imageHeight),
             ),
           ],
         ),

@@ -5,12 +5,12 @@ import 'models.dart';
 ///
 /// Boxes come from the backend in ORIGINAL image pixels, so we scale them to
 /// the widget size using the original image dimensions.
-class BoxPainter extends CustomPainter {
+class DetectionPainter extends CustomPainter {
   final List<Detection> detections;
   final int imageWidth;
   final int imageHeight;
 
-  BoxPainter(this.detections, this.imageWidth, this.imageHeight);
+  DetectionPainter(this.detections, this.imageWidth, this.imageHeight);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -57,6 +57,6 @@ class BoxPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant BoxPainter old) =>
+  bool shouldRepaint(covariant DetectionPainter old) =>
       old.detections != detections;
 }
